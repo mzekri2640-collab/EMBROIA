@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>EmBro Nexus</title>
+
+  <!-- PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EmBro Nexus">
+  <meta name="theme-color" content="#040610">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Barlow+Condensed:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─── ROOT ─────────────────────────────────────── */
+:root {
+  --bg:#040610; --bg2:#080d1a; --bg3:#0d1525; --bg4:#121d30;
+  --t1:#e8eeff; --t2:rgba(232,238,255,.6); --t3:rgba(232,238,255,.3); --t4:rgba(232,238,255,.12);
+  --bd:rgba(255,255,255,.06); --bd2:rgba(255,255,255,.12);
+  --r:16px; --rs:10px;
+  --c0:#FF6B00; --c1:#00BFFF; --c2:#BF5AF2; --c3:#32D74B; --c4:#FFD60A; --c5:#FF453A;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow-x:hidden;}
+body{background:var(--bg);color:var(--t1);font-family:'Barlow Condensed',sans-serif;
+  overflow-y:auto;position:relative;}
+
+/* ─── ANIMATED BG ──────────────────────────────── */
+.bg-layer{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.bg-layer::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.04) 1px,transparent 0);
+  background-size:28px 28px;
+}
+.bg-layer::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 0%,rgba(255,107,0,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 35% at 80% 100%,rgba(0,191,255,.06) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(191,90,242,.04) 0%,transparent 70%);
+}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;
+  animation:orbFloat 12s ease-in-out infinite;}
+.orb1{width:300px;height:300px;background:rgba(255,107,0,.07);top:-100px;left:-80px;animation-delay:0s;}
+.orb2{width:250px;height:250px;background:rgba(0,191,255,.06);bottom:-80px;right:-60px;animation-delay:-4s;}
+.orb3{width:180px;height:180px;background:rgba(191,90,242,.05);top:40%;left:60%;animation-delay:-8s;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0);}33%{transform:translate(20px,-30px);}66%{transform:translate(-15px,20px);}}
+
+/* ─── HEADER ───────────────────────────────────── */
+.hdr{
+  position:sticky;top:0;z-index:50;
+  background:rgba(4,6,16,.88);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,107,0,.12);
+  padding:0 20px;height:56px;
+  display:flex;align-items:center;gap:14px;
+}
+.logo{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;
+  letter-spacing:4px;color:var(--t1);
+}
+.logo b{color:var(--c0);}
+.hdr-div{width:1px;height:22px;background:var(--bd2);}
+.hdr-chip{
+  font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;
+}
+.chip-online{color:var(--c3);background:rgba(50,215,75,.1);border:1px solid rgba(50,215,75,.25);}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.hdr-clock{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);}
+.hdr-cost{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  color:var(--c0);background:rgba(255,107,0,.08);
+  border:1px solid rgba(255,107,0,.2);border-radius:6px;padding:3px 10px;
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--c3);
+  box-shadow:0 0 8px var(--c3);animation:livePulse 2s ease infinite;}
+@keyframes livePulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(.5);opacity:.4;}}
+
+/* ─── BRIEF BAR ─────────────────────────────────── */
+.brief-wrap{
+  position:relative;z-index:1;
+  padding:16px 20px 0;
+  display:flex;gap:10px;align-items:center;
+}
+.brief-input{
+  flex:1;background:rgba(255,255,255,.04);
+  border:1px solid var(--bd2);border-radius:var(--rs);
+  padding:12px 16px;color:var(--t1);font-family:'Barlow Condensed',sans-serif;font-size:15px;
+  outline:none;transition:all .2s;
+}
+.brief-input:focus{border-color:var(--c0);background:rgba(255,107,0,.04);box-shadow:0 0 0 3px rgba(255,107,0,.08);}
+.brief-input::placeholder{color:var(--t3);}
+.dispatch-btn{
+  flex-shrink:0;
+  background:linear-gradient(135deg,var(--c0),#ff8c00);
+  border:none;border-radius:var(--rs);
+  padding:12px 20px;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;
+  letter-spacing:1.5px;color:#fff;
+  box-shadow:0 4px 20px rgba(255,107,0,.3);
+  transition:all .15s;white-space:nowrap;
+}
+.dispatch-btn:active{transform:scale(.97);opacity:.9;}
+.dispatch-btn.pulsing{animation:btnPulse .5s ease;}
+/* ─── VOICE INPUT ───────────────────────────────── */
+.mic-btn{
+  flex-shrink:0;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.06);border:1px solid var(--bd2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;transition:all .2s;position:relative;
+}
+.mic-btn:hover{background:rgba(255,255,255,.1);}
+.mic-btn.listening{
+  background:rgba(255,69,58,.15);border-color:rgba(255,69,58,.5);
+  animation:micPulse 1.2s ease-in-out infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,69,58,.5);}
+  50%{box-shadow:0 0 0 12px rgba(255,69,58,0);}
+}
+.mic-ring{
+  position:absolute;inset:-6px;border-radius:50%;
+  border:2px solid rgba(255,69,58,.6);
+  opacity:0;transform:scale(.8);
+  transition:all .2s;pointer-events:none;
+}
+.mic-btn.listening .mic-ring{opacity:1;transform:scale(1);}
+
+.voice-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:80;
+  background:rgba(4,6,16,.96);backdrop-filter:blur(24px);
+  border-top:1px solid rgba(255,69,58,.25);
+  padding:20px 24px 36px;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.voice-panel.on{transform:translateY(0);}
+.voice-panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+}
+.voice-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:var(--t1);letter-spacing:1px;}
+.voice-lang{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(255,69,58,.8);background:rgba(255,69,58,.1);
+  border:1px solid rgba(255,69,58,.25);border-radius:6px;padding:3px 10px;
+}
+.voice-close{
+  width:32px;height:32px;border-radius:8px;border:1px solid var(--bd2);
+  background:none;cursor:pointer;color:var(--t3);font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* Waveform bars */
+.waveform{
+  display:flex;align-items:center;justify-content:center;
+  gap:4px;height:52px;margin-bottom:16px;
+}
+.wave-bar{
+  width:3px;border-radius:2px;background:rgba(255,69,58,.5);
+  animation:waveBounce 1s ease-in-out infinite;
+  transform-origin:bottom;
+}
+.wave-bar:nth-child(1){height:12px;animation-delay:0s;}
+.wave-bar:nth-child(2){height:20px;animation-delay:.1s;}
+.wave-bar:nth-child(3){height:32px;animation-delay:.2s;}
+.wave-bar:nth-child(4){height:44px;animation-delay:.1s;background:rgba(255,69,58,.9);}
+.wave-bar:nth-child(5){height:52px;animation-delay:0s;background:#FF453A;}
+.wave-bar:nth-child(6){height:44px;animation-delay:.1s;background:rgba(255,69,58,.9);}
+.wave-bar:nth-child(7){height:32px;animation-delay:.2s;}
+.wave-bar:nth-child(8){height:20px;animation-delay:.1s;}
+.wave-bar:nth-child(9){height:12px;animation-delay:0s;}
+.waveform.idle .wave-bar{animation:none;height:4px;background:rgba(255,255,255,.1);}
+@keyframes waveBounce{
+  0%,100%{transform:scaleY(1);}
+  50%{transform:scaleY(.3);}
+}
+
+.voice-transcript{
+  background:rgba(255,255,255,.04);border:1px solid var(--bd2);border-radius:var(--rs);
+  padding:14px;min-height:56px;margin-bottom:16px;
+  font-size:16px;color:var(--t2);line-height:1.5;
+  font-family:'Barlow Condensed',sans-serif;font-weight:500;
+}
+.voice-transcript .interim{color:var(--t3);font-style:italic;}
+.voice-status{
+  text-align:center;font-size:11px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:16px;
+}
+.voice-status.active{color:rgba(255,69,58,.9);}
+.voice-actions{display:flex;gap:10px;}
+.v-btn{
+  flex:1;padding:13px;border-radius:var(--rs);border:none;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;
+  transition:all .15s;
+}
+.v-btn:active{transform:scale(.97);}
+.v-btn-send{background:linear-gradient(135deg,#FF453A,#ff6b5b);color:#fff;
+  box-shadow:0 4px 20px rgba(255,69,58,.3);}
+.v-btn-clear{background:rgba(255,255,255,.06);color:var(--t2);border:1px solid var(--bd2);}
+.v-btn-send:disabled{opacity:.4;cursor:not-allowed;}
+
+@keyframes btnPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}};
+
+/* ─── MAIN LAYOUT ───────────────────────────────── */
+.main{position:relative;z-index:1;padding:20px 20px 40px;}
+
+/* ─── MANAGER CARD ──────────────────────────────── */
+.manager-card{
+  position:relative;
+  background:linear-gradient(135deg,rgba(255,107,0,.08) 0%,rgba(255,107,0,.03) 100%);
+  border:1px solid rgba(255,107,0,.25);border-radius:var(--r);
+  padding:22px;margin-bottom:20px;overflow:hidden;cursor:pointer;
+  transition:all .25s;
+}
+.manager-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--c0),rgba(255,107,0,.5),transparent);
+  animation:scanline 3s ease-in-out infinite;
+}
+@keyframes scanline{0%{opacity:0;transform:scaleX(0);}20%{opacity:1;transform:scaleX(1);}80%{opacity:1;}100%{opacity:0;}}
+.manager-card:hover{border-color:rgba(255,107,0,.5);transform:translateY(-2px);
+  box-shadow:0 20px 60px rgba(255,107,0,.12);}
+.mgr-inner{display:flex;align-items:center;gap:18px;}
+.mgr-avatar{
+  position:relative;width:60px;height:60px;flex-shrink:0;
+  background:radial-gradient(circle at 30% 30%,rgba(255,107,0,.4),rgba(255,107,0,.1));
+  border:1px solid rgba(255,107,0,.4);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.mgr-avatar::after{
+  content:'';position:absolute;inset:-2px;border-radius:16px;
+  border:1px solid transparent;
+  background:linear-gradient(135deg,rgba(255,107,0,.6),transparent) border-box;
+  -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:destination-out;mask-composite:exclude;
+}
+.mgr-body{flex:1;}
+.mgr-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,107,0,.7);margin-bottom:4px;}
+.mgr-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:24px;color:var(--t1);letter-spacing:1px;line-height:1;}
+.mgr-role{font-size:12px;color:var(--t2);margin-top:4px;}
+.mgr-stats{display:flex;gap:16px;margin-top:12px;}
+.mgr-stat{text-align:center;}
+.mgr-stat-v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--c0);line-height:1;}
+.mgr-stat-l{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-top:2px;}
+.mgr-right{flex-shrink:0;text-align:right;}
+.mgr-model{
+  font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--c3);background:rgba(50,215,75,.1);
+  border:1px solid rgba(50,215,75,.2);border-radius:6px;padding:3px 10px;margin-bottom:8px;
+  display:inline-block;
+}
+.mgr-free{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--c3);}
+.status-row{display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end;}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.status-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+/* ─── SECTION HEADER ────────────────────────────── */
+.section-hdr{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.section-line{flex:1;height:1px;background:linear-gradient(90deg,var(--bd2),transparent);}
+.section-lbl{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--t3);flex-shrink:0;}
+
+/* ─── AGENTS GRID ───────────────────────────────── */
+.agents-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+@media(min-width:600px){.agents-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.agents-grid{grid-template-columns:repeat(5,1fr);}}
+
+/* ─── AGENT CARD ────────────────────────────────── */
+.acard{
+  position:relative;
+  background:var(--bg3);
+  border:1px solid var(--bd);border-radius:var(--r);
+  padding:18px 14px;cursor:pointer;overflow:hidden;
+  transition:all .25s;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  min-height:180px;justify-content:space-between;
+}
+.acard::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:radial-gradient(circle at 50% 0%,var(--ac),transparent 65%);
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.acard:hover::after{opacity:.07;}
+.acard:hover{transform:translateY(-5px);}
+.acard:hover .acard-glow{opacity:1;}
+.acard-glow{
+  position:absolute;inset:0;border-radius:inherit;
+  box-shadow:0 0 0 1px var(--ac),0 0 30px rgba(var(--ac-r),var(--ac-g),var(--ac-b),.2),0 20px 60px rgba(var(--ac-r),var(--ac-g),var(--ac-b),.1);
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.acard-top{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;}
+.acard-num{
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
+  letter-spacing:2px;color:var(--ac);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:2px 8px;
+  margin-bottom:2px;
+}
+.acard-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  background:var(--ac-bg);border:1px solid var(--ac-br);
+  position:relative;transition:all .25s;
+}
+.acard:hover .acard-icon{box-shadow:0 0 20px var(--ac-br);}
+.acard-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--t1);letter-spacing:.5px;line-height:1;}
+.acard-role{font-size:10px;color:var(--t3);line-height:1.3;margin-top:1px;}
+.acard-bottom{width:100%;}
+.acard-model{
+  font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--ac);background:var(--ac-bg);border:1px solid var(--ac-br);
+  border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:6px;
+}
+.acard-badges{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;}
+.badge-free{font-size:9px;font-weight:700;letter-spacing:.6px;color:var(--c3);
+  background:rgba(50,215,75,.08);border:1px solid rgba(50,215,75,.2);border-radius:4px;padding:2px 7px;}
+.badge-paid{font-size:9px;font-weight:700;letter-spacing:.6px;color:var(--c0);
+  background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.2);border-radius:4px;padding:2px 7px;}
+.badge-tok{font-size:9px;font-weight:700;color:var(--t3);
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:4px;padding:2px 7px;
+  font-family:'JetBrains Mono',monospace;}
+
+.acard-hover-hint{
+  position:absolute;bottom:12px;left:0;right:0;text-align:center;
+  font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ac);
+  opacity:0;transition:opacity .2s;
+}
+.acard:hover .acard-hover-hint{opacity:.8;}
+
+/* ─── DRAWER ────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;background:rgba(4,6,16,.8);backdrop-filter:blur(8px);
+  z-index:90;opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.overlay.on{opacity:1;pointer-events:all;}
+.drawer{
+  position:fixed;right:0;top:0;bottom:0;width:min(100vw,480px);
+  background:var(--bg2);border-left:1px solid var(--bd2);
+  z-index:100;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.drawer.on{transform:translateX(0);}
+.drawer-hdr{
+  padding:20px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:14px;flex-shrink:0;
+}
+.drawer-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+.drawer-meta{flex:1;min-width:0;}
+.drawer-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;color:var(--t1);}
+.drawer-role{font-size:11px;color:var(--t3);margin-top:2px;}
+.drawer-close{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--bd2);
+  background:none;cursor:pointer;color:var(--t3);font-size:18px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.drawer-close:hover{background:rgba(255,255,255,.05);color:var(--t1);}
+.drawer-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;
+  scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;}
+.drawer-body::-webkit-scrollbar{width:4px;}
+.drawer-body::-webkit-scrollbar-thumb{background:var(--bd2);}
+.drawer-section-title{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--t3);margin-bottom:6px;}
+.drawer-desc{font-size:13px;color:var(--t2);line-height:1.6;
+  background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:var(--rs);padding:14px;}
+.prompt-terminal{
+  background:#020408;border:1px solid var(--bd2);border-radius:var(--rs);
+  overflow:hidden;flex:1;min-height:260px;display:flex;flex-direction:column;
+}
+.terminal-bar{
+  background:var(--bg3);border-bottom:1px solid var(--bd);padding:8px 12px;
+  display:flex;align-items:center;gap:6px;
+}
+.term-dot{width:10px;height:10px;border-radius:50%;}
+.term-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-left:auto;}
+.prompt-text{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:#a8b8d8;
+  line-height:1.7;padding:14px;flex:1;overflow-y:auto;white-space:pre-wrap;word-break:break-word;
+  scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;
+}
+.prompt-text::-webkit-scrollbar{width:3px;}
+.prompt-text::-webkit-scrollbar-thumb{background:var(--bd2);}
+.drawer-footer{padding:16px 20px;border-top:1px solid var(--bd);display:flex;gap:10px;flex-shrink:0;}
+.dbtn{
+  flex:1;padding:13px;border-radius:var(--rs);border:none;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;
+  transition:all .15s;
+}
+.dbtn:active{transform:scale(.97);}
+.dbtn-copy{background:rgba(255,255,255,.06);color:var(--t1);border:1px solid var(--bd2);}
+.dbtn-copy:hover{background:rgba(255,255,255,.1);}
+.dbtn-copy.ok{background:rgba(50,215,75,.1);color:var(--c3);border-color:rgba(50,215,75,.3);}
+.dbtn-open{color:#fff;border:none;}
+.dbtn-open:hover{opacity:.9;}
+
+/* ─── SPEC OUTPUT ───────────────────────────────── */
+.spec-wrap{
+  position:relative;z-index:1;padding:0 20px 20px;
+  display:none;
+}
+.spec-wrap.on{display:block;}
+.spec-card{
+  background:var(--bg3);border:1px solid rgba(255,107,0,.2);border-radius:var(--r);overflow:hidden;
+  animation:specReveal .4s ease both;
+}
+@keyframes specReveal{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.spec-hdr{padding:13px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.spec-hdr-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--t1);}
+.spec-copy{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;
+  background:rgba(255,255,255,.05);border:1px solid var(--bd2);color:var(--t2);
+  border-radius:6px;padding:5px 14px;cursor:pointer;transition:all .15s;
+}
+.spec-copy:hover{background:rgba(255,255,255,.09);}
+.spec-copy.ok{color:var(--c3);border-color:rgba(50,215,75,.3);}
+.spec-body{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);
+  line-height:1.7;padding:14px 16px;white-space:pre;overflow-x:auto;
+  max-height:280px;overflow-y:auto;scrollbar-width:thin;
+}
+
+/* ─── TOAST ─────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);opacity:0;
+  background:rgba(50,215,75,.12);border:1px solid rgba(50,215,75,.3);color:var(--c3);
+  border-radius:20px;padding:8px 22px;font-size:12px;font-weight:700;letter-spacing:.5px;
+  z-index:200;transition:all .25s ease;white-space:nowrap;pointer-events:none;
+}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ─── STAGGER ANIMS ─────────────────────────────── */
+@keyframes cardIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.acard{animation:cardIn .4s ease both;}
+.acard:nth-child(1){animation-delay:.06s;}
+.acard:nth-child(2){animation-delay:.12s;}
+.acard:nth-child(3){animation-delay:.18s;}
+.acard:nth-child(4){animation-delay:.24s;}
+.acard:nth-child(5){animation-delay:.30s;}
+.manager-card{animation:cardIn .4s ease both;}
+</style>
+</head>
+<body>
+
+<!-- Animated BG -->
+<div class="bg-layer"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="live-dot"></div>
+  <div class="logo">EMBR<b>O</b> NEXUS</div>
+  <div class="hdr-div"></div>
+  <div class="hdr-chip chip-online">7 AGENTS ONLINE</div>
+  <div class="hdr-right">
+    <div class="hdr-clock" id="hdr-clock">00:00:00</div>
+    <div class="hdr-cost">~0.20€/app</div>
+  </div>
+</header>
+
+<!-- Brief bar -->
+<div class="brief-wrap">
+  <button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Parler au Manager">
+    <div class="mic-ring"></div>
+    🎙️
+  </button>
+  <input class="brief-input" id="brief-inp" placeholder="Parle ou écris ton brief…" maxlength="300">
+  <button class="dispatch-btn" onclick="dispatch()">⚡ DISPATCH</button>
+</div>
+
+<!-- Voice panel -->
+<div class="voice-panel" id="voice-panel">
+  <div class="voice-panel-hdr">
+    <div class="voice-title">🎙️ Parler au Manager</div>
+    <div class="voice-lang">FR-FR</div>
+    <button class="voice-close" onclick="stopVoice()">✕</button>
+  </div>
+  <div class="waveform idle" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="voice-transcript" id="voice-transcript">
+    <span class="interim" id="voice-interim">Appuie sur le micro et parle…</span>
+  </div>
+  <div class="voice-status" id="voice-status">EN ATTENTE</div>
+  <div class="voice-actions">
+    <button class="v-btn v-btn-clear" onclick="clearVoice()">Effacer</button>
+    <button class="v-btn v-btn-send" id="v-send-btn" onclick="sendVoice()" disabled>
+      ⚡ Envoyer au Manager
+    </button>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="main">
+
+  <!-- Manager -->
+  <div class="manager-card" onclick="openDrawer('manager')">
+    <div class="mgr-inner">
+      <div class="mgr-avatar">🎯</div>
+      <div class="mgr-body">
+        <div class="mgr-label">Commandant</div>
+        <div class="mgr-name">Manager</div>
+        <div class="mgr-role">Orchestrateur Central · Dispatch · Validation</div>
+        <div class="mgr-stats">
+          <div class="mgr-stat"><div class="mgr-stat-v">7</div><div class="mgr-stat-l">Agents</div></div>
+          <div class="mgr-stat"><div class="mgr-stat-v">~3.6K</div><div class="mgr-stat-l">Tokens</div></div>
+          <div class="mgr-stat"><div class="mgr-stat-v">0.15€</div><div class="mgr-stat-l">/ App</div></div>
+        </div>
+      </div>
+      <div class="mgr-right">
+        <div class="mgr-model">Gemini 2.5 Pro</div>
+        <div class="mgr-free">✓ GRATUIT</div>
+        <div class="status-row">
+          <div class="status-dot" style="background:var(--c3);box-shadow:0 0 6px var(--c3);"></div>
+          <div class="status-lbl" style="color:var(--c3);">OPÉRATIONNEL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section label -->
+  <div class="section-hdr">
+    <div class="section-line"></div>
+    <div class="section-lbl">Agents spécialisés</div>
+    <div class="section-line" style="background:linear-gradient(90deg,transparent,var(--bd2));"></div>
+  </div>
+
+  <!-- Agents grid -->
+  <div class="agents-grid" id="agents-grid"></div>
+
+</div>
+
+<!-- Spec output -->
+<div class="spec-wrap" id="spec-wrap">
+  <div class="spec-card">
+    <div class="spec-hdr">
+      <div class="spec-hdr-t">📄 Spec JSON — Prêt pour le Manager</div>
+      <button class="spec-copy" id="spec-copy-btn" onclick="copySpec()">Copier</button>
+    </div>
+    <div class="spec-body" id="spec-body"></div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<!-- Drawer -->
+<div class="drawer" id="drawer">
+  <div class="drawer-hdr">
+    <div class="drawer-icon" id="d-icon">🎯</div>
+    <div class="drawer-meta">
+      <div class="drawer-name" id="d-name">Agent</div>
+      <div class="drawer-role" id="d-role">Rôle</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div>
+      <div class="drawer-section-title">Description</div>
+      <div class="drawer-desc" id="d-desc">—</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;">
+      <div class="drawer-section-title">Prompt système</div>
+      <div class="prompt-terminal">
+        <div class="terminal-bar">
+          <div class="term-dot" style="background:#ff5f57;"></div>
+          <div class="term-dot" style="background:#febc2e;"></div>
+          <div class="term-dot" style="background:#28c840;"></div>
+          <div class="term-title" id="d-model-bar">gemini-2.5-pro</div>
+        </div>
+        <div class="prompt-text" id="d-prompt"></div>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="dbtn dbtn-copy" id="d-copy-btn" onclick="copyPrompt()">📋 Copier le prompt</button>
+    <button class="dbtn dbtn-open" id="d-open-btn" onclick="openPlatform()">🔗 Ouvrir</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  AGENT DATA
+// ═══════════════════════════════════════════════
+var AGENTS = [
+  {
+    id:"market", num:"00", icon:"📊", name:"Analyste",
+    role:"Marché · Concurrence · Stratégie",
+    color:"#06D6A0", colR:6, colG:214, colB:160,
+    model:"Perplexity / Gemini 2.5 Pro", modelShort:"perplexity-sonar-pro",
+    free:false, cost:"~0.05€", tokens:"~600",
+    link:"https://www.perplexity.ai",
+    desc:"Reçoit l'idée brute. Analyse le marché, les concurrents directs, le public cible, les opportunités de monétisation et la viabilité avant toute décision technique. Output : rapport structuré que le Manager transmet à l'Architecte.",
+    prompt:"Tu es l'ANALYSTE MARCHE d'EmBro Studio.\n\nTU INTERVIENS AVANT toute decision technique. Le Manager te donne l'idee brute.\n\nCE QUE TU ANALYSES :\n\n1. MARCHE\n   - Taille du marche (large / niche / ultra-niche)\n   - Tendances actuelles (en croissance / stable / saturee)\n   - Saisonnalite eventuelle\n\n2. CONCURRENCE\n   - 3 apps concurrentes directes sur Google Play\n   - Pour chacune : note, nombre d'avis, points forts, points faibles\n   - Opportunite de differentiation identifiee\n\n3. PUBLIC CIBLE\n   - Profil de l'utilisateur principal (age, contexte, besoin)\n   - Frequence d'utilisation estimee\n   - Moment cle d'usage (matin / soir / au travail / en deplacement)\n\n4. MONETISATION\n   - Strategie recommandee : Gratuit + pub / Freemium / Achat unique / Abonnement\n   - Justification en 1 phrase\n   - Prix suggere si payant\n\n5. AVANTAGE CONCURRENTIEL\n   - 1 seule chose qui doit rendre cette app UNIQUE\n   - 3 mots-cles Google Play recommandes\n\n6. VERDICT\n   - GO / GO AVEC RESERVES / NO GO\n   - Raison principale en 1 phrase\n\nFORMAT DE SORTIE : Markdown structure, 500 tokens max, pas d'introduction.\nChaque section en ## titre, bullet points concis, chiffres quand possible."
+  },
+  {
+    id:"archi", num:"01", icon:"🏗️", name:"Architecte",
+    role:"Structure technique",
+    color:"#00BFFF", colR:0, colG:191, colB:255,
+    model:"Claude Sonnet 4.6", modelShort:"claude-sonnet-4-6",
+    free:false, cost:"~0.05€", tokens:"~400",
+    link:"https://claude.ai",
+    desc:"Reçoit le spec JSON du Manager. Produit l'architecture complète : State JS, écrans, flux de données, fonctions clés, dépendances CDN. Aucun code — uniquement la blueprint technique.",
+    prompt:"Tu es l'ARCHITECTE d'EmBro Studio.\n\nSTACK CIBLE :\n- Fichier HTML unique (HTML+CSS+JS)\n- WebView Android, offline-first\n- localStorage pour la persistance\n- JS Vanilla uniquement — pas de framework\n\nFORMAT DE SORTIE (400 tokens max) :\n\n# ARCHITECTURE — [NomProjet]\n\n## State JS\nconst S = { /* champs cles */ }\n\n## Ecrans / Vues\n[liste avec role de chaque screen]\n\n## Flux de donnees\n[schema ASCII simple]\n\n## Fonctions principales\n[liste]\n\n## Dependances CDN\n[uniquement le necessaire]\n\n## Risques\n[3 points max]\n\nREGLES :\n- 1 seul fichier HTML si possible\n- Pas de npm, pas de build tool\n- OUTPUT : Markdown uniquement, sans intro ni conclusion"
+  },
+  {
+    id:"design", num:"02", icon:"🎨", name:"Designer",
+    role:"UI/UX & CSS Premium",
+    color:"#BF5AF2", colR:191, colG:90, colB:242,
+    model:"Claude Sonnet 4.6", modelShort:"claude-sonnet-4-6",
+    free:false, cost:"~0.08€", tokens:"~500",
+    link:"https://claude.ai",
+    desc:"Reçoit architecture.md + la palette. Produit le bloc CSS complet : variables, composants, animations. Standard EmBro non négociable — Rajdhani + Barlow Condensed.",
+    prompt:"Tu es le DESIGNER UI/UX d'EmBro Studio.\n\nSTANDARDS EMBRO (NON NEGOCIABLES) :\n- Fonts : Rajdhani (titres) + Barlow Condensed (corps) + JetBrains Mono (chiffres)\n- Charger depuis Google Fonts\n- Animations : 0.15-0.3s ease, jamais > 0.5s\n- Coins : --r: 12px (cards), --rs: 8px (chips)\n- Mobile-first : pense pour 390px de large\n\nCE QUE TU PRODUIS — CSS complet entre <style> et </style> :\n1. Variables :root (couleurs, rayons, transitions)\n2. Reset minimal\n3. Layout de base (body, screens, nav bottom)\n4. Composants identifies dans architecture.md\n5. Animations @keyframes\n6. States (hover, active, disabled)\n\nREGLES :\n- OUTPUT : CSS pur entre <style> et </style>\n- Toutes couleurs dans :root — jamais hardcodees\n- Classes en kebab-case\n- Jamais de !important\n- Max 300 lignes denses"
+  },
+  {
+    id:"dev", num:"03", icon:"💻", name:"Développeur",
+    role:"HTML5 · JS · Logique",
+    color:"#32D74B", colR:50, colG:215, colB:75,
+    model:"Gemini 2.5 Pro", modelShort:"gemini-2.5-pro",
+    free:true, cost:"Gratuit", tokens:"~1500",
+    link:"https://aistudio.google.com",
+    desc:"Reçoit architecture.md + le CSS. Produit le fichier HTML complet et fonctionnel. Code-only, pas d'explication. Implémente P1 uniquement, P2 marqué en TODO.",
+    prompt:"Tu es le DEVELOPPEUR principal d'EmBro Studio.\n\nSTRUCTURE OBLIGATOIRE DU FICHIER :\n\n<!DOCTYPE html>\n<html lang='fr'>\n<head>[meta + fonts + CSS du Designer]</head>\n<body>\n  [HTML des ecrans]\n  <script>\n    // -- CONSTANTES --\n    // -- STATE --\n    const S = { ... }\n    // -- SAVE / LOAD --\n    function save() { ... }\n    function load() { ... }\n    // -- RENDER --\n    // -- LOGIQUE METIER --\n    // -- EVENTS --\n    // -- INIT --\n    init();\n  <\/script>\n</body>\n</html>\n\nCONVENTIONS :\n- const $ = id => document.getElementById(id)\n- State unique S sauvegarde en localStorage\n- Pas de console.log dans le livrable\n- Toujours gerer le premier lancement (localStorage vide)\n- P2 en // TODO: P2 — non codees\n\nOUTPUT :\n- Commence DIRECTEMENT par <!DOCTYPE html>\n- Finis par </html>\n- Pas d'explication, pas de markdown autour du code"
+  },
+  {
+    id:"mobile", num:"04", icon:"📱", name:"Mobile",
+    role:"Android · APK · Kotlin",
+    color:"#FFD60A", colR:255, colG:214, colB:10,
+    model:"Gemini 2.5 Pro", modelShort:"gemini-2.5-pro",
+    free:true, cost:"Gratuit", tokens:"~300",
+    link:"https://aistudio.google.com",
+    desc:"Reçoit le HTML validé. Produit les 3 fichiers Android Studio : MainActivity.kt, AndroidManifest.xml, build.gradle. APK prêt à compiler.",
+    prompt:"Tu es l'INTEGRATEUR MOBILE d'EmBro Studio.\n\nSTACK ANDROID CIBLE :\n- Kotlin, minSdk 26, targetSdk 35\n- WebView configuree pour app HTML5\n\nCE QUE TU PRODUIS :\n\n1. MainActivity.kt\n   - WebView : JS, DOM storage, localStorage\n   - WebChromeClient : permissions si requises\n   - Back press intercepte, Fullscreen\n\n2. AndroidManifest.xml\n   - Permissions minimales uniquement\n   - Portrait force, Theme NoActionBar\n\n3. build.gradle\n   - Dependances minimales\n\nFORMAT DE SORTIE :\n### FICHIER: MainActivity.kt\n[code]\n### FICHIER: AndroidManifest.xml\n[code]\n### FICHIER: build.gradle\n[code]\n\nREGLES :\n- Kotlin idiomatique\n- Pas d'explication entre les blocs de code"
+  },
+  {
+    id:"qa", num:"05", icon:"✅", name:"QA",
+    role:"Qualité · Tests · Fixes",
+    color:"#FF453A", colR:255, colG:69, colB:58,
+    model:"Gemini 2.0 Flash", modelShort:"gemini-2.0-flash",
+    free:true, cost:"Gratuit", tokens:"~200",
+    link:"https://aistudio.google.com",
+    desc:"Reçoit le livrable final. Checklist mobile/JS/CSS/UX. Produit un rapport JSON avec les bugs (localisation + correction exacte) et un score /100.",
+    prompt:"Tu es l'AGENT QA d'EmBro Studio.\n\nCHECKLIST OBLIGATOIRE :\n\nMobile :\n- Pas de debordement horizontal\n- Touch targets >= 44px\n- Inputs avec inputmode correct\n- font-size >= 12px partout\n\nJavaScript :\n- Pas d'erreur si localStorage vide (premier lancement)\n- Toutes fonctions appelees dans HTML existent\n- save() apres chaque modification de S\n- init() est la derniere ligne\n\nCSS :\n- Variables :root utilisees (pas de couleurs hardcodees)\n- Pas de regle dupliquee\n\nUX :\n- Feedback visuel sur chaque action\n- Etats vides geres\n- Pas de texte tronque sans ellipsis\n\nFORMAT DE SORTIE (JSON uniquement) :\n{\n  \"bugs\": [{\"severite\":\"critique|majeur|mineur\",\"localisation\":\"...\",\"description\":\"...\",\"correction\":\"code exact\"}],\n  \"score\": 0-100,\n  \"pret_a_livrer\": true|false\n}\n\nOUTPUT : JSON uniquement, rien d'autre"
+  }
+];
+
+var MANAGER = {
+  id:"manager", icon:"🎯", name:"Manager", role:"Orchestrateur Central",
+  color:"#FF6B00", model:"Gemini 2.5 Pro", modelShort:"gemini-2.5-pro",
+  free:true, cost:"Gratuit", tokens:"~200",
+  link:"https://aistudio.google.com",
+  desc:"Reçoit le brief de Malik. Analyse le projet, génère le spec JSON structuré et dispatche les 5 agents dans le bon ordre. Valide chaque output avant de passer à l'étape suivante.",
+  prompt:"Tu es le MANAGER d'EmBro Studio, une equipe de developpement d'applications mobiles.\n\nTON ROLE : Orchestrer 5 agents specialises. Tu ne codes PAS.\n\nPROCESSUS :\n1. Analyse le brief -> extrait type, P1/P2, style, contraintes\n2. Genere le spec JSON structure\n3. Dispatche dans l'ordre : MARKET -> ARCHI -> DESIGN+DEV (parallele) -> MOBILE -> QA\n4. Valide chaque output, informe Malik en 1 ligne max\n\nFORMAT SPEC JSON :\n{\n  \"project\": \"NomDuProjet\",\n  \"type\": \"webview|unity|godot|kotlin\",\n  \"brief_resume\": \"1 phrase max\",\n  \"agents\": {\n    \"ARCHI\":  {\"mission\":\"...\",\"tokens_max\":400,\"model\":\"claude-sonnet-4-6\"},\n    \"DESIGN\": {\"mission\":\"...\",\"tokens_max\":500,\"model\":\"claude-sonnet-4-6\"},\n    \"DEV\":    {\"mission\":\"...\",\"tokens_max\":1500,\"model\":\"gemini-2.5-pro\"},\n    \"MOBILE\": {\"mission\":\"...\",\"tokens_max\":300,\"model\":\"gemini-2.5-pro\"},\n    \"QA\":     {\"mission\":\"...\",\"tokens_max\":200,\"model\":\"gemini-2.0-flash\"}\n  }\n}\n\nREGLES ABSOLUES :\n- Envoyer UNIQUEMENT le brief specifique a chaque agent\n- Toujours ajouter : OUTPUT code uniquement, sans explication\n- Si agent depasse tokens_max de 30% -> resumer avant de passer au suivant"
+};
+
+// ═══════════════════════════════════════════════
+//  RENDER AGENTS GRID
+// ═══════════════════════════════════════════════
+function renderGrid() {
+  var grid = document.getElementById("agents-grid");
+  var html = "";
+  AGENTS.forEach(function(a) {
+    var acBg = "rgba(" + a.colR + "," + a.colG + "," + a.colB + ",.1)";
+    var acBr = "rgba(" + a.colR + "," + a.colG + "," + a.colB + ",.25)";
+    var badgeCost = a.free
+      ? '<span class="badge-free">GRATUIT</span>'
+      : '<span class="badge-paid">' + a.cost + '</span>';
+    html += '<div class="acard" style="--ac:' + a.color + ';--ac-r:' + a.colR + ';--ac-g:' + a.colG + ';--ac-b:' + a.colB + ';--ac-bg:' + acBg + ';--ac-br:' + acBr + ';" onclick="openDrawer(\'' + a.id + '\')">'
+      + '<div class="acard-glow"></div>'
+      + '<div class="acard-top">'
+        + '<div class="acard-num">AGENT ' + a.num + '</div>'
+        + '<div class="acard-icon" style="background:' + acBg + ';border-color:' + acBr + ';">' + a.icon + '</div>'
+        + '<div class="acard-name">' + a.name + '</div>'
+        + '<div class="acard-role">' + a.role + '</div>'
+      + '</div>'
+      + '<div class="acard-bottom">'
+        + '<div class="acard-model">' + a.model + '</div>'
+        + '<div class="acard-badges">'
+          + badgeCost
+          + '<span class="badge-tok">' + a.tokens + '</span>'
+        + '</div>'
+      + '</div>'
+      + '<div class="acard-hover-hint">VOIR PROMPT →</div>'
+    + '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+//  DRAWER
+// ═══════════════════════════════════════════════
+var currentAgent = null;
+
+function openDrawer(id) {
+  var agent = id === "manager" ? MANAGER : AGENTS.find(function(a){return a.id===id;});
+  if (!agent) return;
+  currentAgent = agent;
+
+  document.getElementById("d-icon").textContent = agent.icon;
+  document.getElementById("d-icon").style.background = "rgba(" + (agent.colR||255) + "," + (agent.colG||107) + "," + (agent.colB||0) + ",.12)";
+  document.getElementById("d-icon").style.border = "1px solid rgba(" + (agent.colR||255) + "," + (agent.colG||107) + "," + (agent.colB||0) + ",.3)";
+  document.getElementById("d-name").textContent = agent.name;
+  document.getElementById("d-role").textContent = agent.role;
+  document.getElementById("d-desc").textContent = agent.desc;
+  document.getElementById("d-prompt").textContent = agent.prompt;
+  document.getElementById("d-model-bar").textContent = agent.modelShort;
+
+  var openBtn = document.getElementById("d-open-btn");
+  openBtn.style.background = "linear-gradient(135deg," + agent.color + "," + agent.color + "cc)";
+  openBtn.textContent = "🔗 Ouvrir " + (agent.free ? "AI Studio" : "Claude");
+
+  var copyBtn = document.getElementById("d-copy-btn");
+  copyBtn.textContent = "📋 Copier le prompt";
+  copyBtn.classList.remove("ok");
+
+  document.getElementById("overlay").classList.add("on");
+  document.getElementById("drawer").classList.add("on");
+}
+
+function closeDrawer() {
+  document.getElementById("overlay").classList.remove("on");
+  document.getElementById("drawer").classList.remove("on");
+  currentAgent = null;
+}
+
+function copyPrompt() {
+  if (!currentAgent) return;
+  navigator.clipboard.writeText(currentAgent.prompt).then(function() {
+    var btn = document.getElementById("d-copy-btn");
+    btn.textContent = "✓ Copié !";
+    btn.classList.add("ok");
+    showToast("Prompt " + currentAgent.name + " copié");
+    setTimeout(function(){ btn.textContent="📋 Copier le prompt"; btn.classList.remove("ok"); }, 2000);
+  });
+}
+
+function openPlatform() {
+  if (!currentAgent) return;
+  window.open(currentAgent.link, "_blank");
+}
+
+// ═══════════════════════════════════════════════
+//  DISPATCH / SPEC GENERATOR
+// ═══════════════════════════════════════════════
+function dispatch() {
+  var brief = document.getElementById("brief-inp").value.trim();
+  if (!brief) {
+    showToast("Entre un brief d'abord !");
+    return;
+  }
+
+  var btn = document.querySelector(".dispatch-btn");
+  btn.classList.add("pulsing");
+  setTimeout(function(){ btn.classList.remove("pulsing"); }, 500);
+
+  var spec = {
+    project: extractName(brief),
+    type: detectType(brief),
+    brief_resume: brief.slice(0, 120),
+    stack: ["HTML5","CSS3","JS Vanilla","WebView Android"],
+    agents: {
+      MARKET: { mission: "Analyser le marche pour : " + brief.slice(0,80) + ". Concurrents, cible, monetisation, verdict GO/NO-GO.", model: "perplexity-sonar-pro", tokens_max: 600 },
+      ARCHI:  { mission: "Concevoir l'architecture pour : " + brief.slice(0,80), model: "claude-sonnet-4-6", tokens_max: 400 },
+      DESIGN: { mission: "CSS premium EmBro pour : " + extractName(brief), model: "claude-sonnet-4-6", tokens_max: 500 },
+      DEV:    { mission: "Coder HTML complet. Fonctionnalites : " + brief.slice(0,100) + ". P2 en TODO.", model: "gemini-2.5-pro", tokens_max: 1500 },
+      MOBILE: { mission: "Packager en APK Android — MainActivity + Manifest + Gradle.", model: "gemini-2.5-pro", tokens_max: 300 },
+      QA:     { mission: "Tester le livrable. Checklist mobile+JS+CSS+UX. Score /100.", model: "gemini-2.0-flash", tokens_max: 200 }
+    },
+    meta: {
+      genere_le: new Date().toLocaleDateString("fr-FR"),
+      tokens_total: "~3100",
+      cout_estime: "~0.15EUR",
+      instruction_globale: "OUTPUT code uniquement, sans explication ni introduction."
+    }
+  };
+
+  document.getElementById("spec-body").textContent = JSON.stringify(spec, null, 2);
+  var sw = document.getElementById("spec-wrap");
+  sw.classList.add("on");
+  setTimeout(function(){ sw.scrollIntoView({behavior:"smooth",block:"start"}); }, 150);
+  showToast("Spec généré — Copiez-le et envoyez au Manager !");
+}
+
+function extractName(brief) {
+  var words = brief.trim().split(/\s+/).slice(0,3);
+  return words.map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join("");
+}
+
+function detectType(brief) {
+  var b = brief.toLowerCase();
+  if (/jeu|game|arcade|puzzle|rpg|shooter|platformer/.test(b)) return "game-webview";
+  if (/unity/.test(b)) return "unity";
+  if (/godot/.test(b)) return "godot4";
+  if (/kotlin|natif|native/.test(b)) return "kotlin";
+  return "webview";
+}
+
+function copySpec() {
+  var txt = document.getElementById("spec-body").textContent;
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById("spec-copy-btn");
+    btn.textContent = "✓ Copié !"; btn.classList.add("ok");
+    showToast("Spec JSON copié — à envoyer au Manager");
+    setTimeout(function(){ btn.textContent="Copier"; btn.classList.remove("ok"); }, 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("on");
+  setTimeout(function(){ t.classList.remove("on"); }, 2600);
+}
+
+function startClock() {
+  function tick() {
+    var now = new Date();
+    var h = String(now.getHours()).padStart(2,"0");
+    var m = String(now.getMinutes()).padStart(2,"0");
+    var s = String(now.getSeconds()).padStart(2,"0");
+    var el = document.getElementById("hdr-clock");
+    if (el) el.textContent = h + ":" + m + ":" + s;
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// Keyboard
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") closeDrawer();
+});
+
+// Enter in brief
+document.getElementById("brief-inp").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") dispatch();
+});
+
+
+// ═══════════════════════════════════════════════
+//  VOICE RECOGNITION
+// ═══════════════════════════════════════════════
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+var recognition = null;
+var isListening = false;
+var finalTranscript = "";
+
+function initSpeech() {
+  if (!SR) {
+    showToast("Reconnaissance vocale non disponible");
+    return false;
+  }
+  recognition = new SR();
+  recognition.lang = "fr-FR";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function() {
+    isListening = true;
+    setVoiceUI(true);
+  };
+
+  recognition.onresult = function(e) {
+    var interim = "";
+    var final = "";
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        final += t + " ";
+      } else {
+        interim += t;
+      }
+    }
+    if (final) {
+      finalTranscript += final;
+      updateTranscript(finalTranscript, "");
+    } else {
+      updateTranscript(finalTranscript, interim);
+    }
+    var sendBtn = document.getElementById("v-send-btn");
+    if (sendBtn) sendBtn.disabled = !finalTranscript.trim();
+  };
+
+  recognition.onerror = function(e) {
+    if (e.error === "not-allowed") {
+      showToast("Permission micro refusée — Active-la dans les réglages");
+    } else if (e.error !== "aborted") {
+      showToast("Erreur : " + e.error);
+    }
+    stopVoice();
+  };
+
+  recognition.onend = function() {
+    if (isListening) {
+      // Auto-restart pour continuous mode
+      try { recognition.start(); } catch(err) {}
+    }
+  };
+
+  return true;
+}
+
+function toggleVoice() {
+  if (!document.getElementById("voice-panel").classList.contains("on")) {
+    openVoicePanel();
+  } else {
+    if (isListening) {
+      pauseListening();
+    } else {
+      startListening();
+    }
+  }
+}
+
+function openVoicePanel() {
+  finalTranscript = "";
+  updateTranscript("", "Appuie sur le micro et parle…");
+  document.getElementById("voice-panel").classList.add("on");
+  var sendBtn = document.getElementById("v-send-btn");
+  if (sendBtn) sendBtn.disabled = true;
+  startListening();
+}
+
+function startListening() {
+  if (!recognition && !initSpeech()) return;
+  try {
+    recognition.start();
+  } catch(e) {
+    // Already started
+  }
+}
+
+function pauseListening() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  setVoiceUI(false);
+}
+
+function stopVoice() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  document.getElementById("voice-panel").classList.remove("on");
+  document.getElementById("mic-btn").classList.remove("listening");
+  setWaveform(false);
+  finalTranscript = "";
+}
+
+function setVoiceUI(active) {
+  var micBtn = document.getElementById("mic-btn");
+  var statusEl = document.getElementById("voice-status");
+  if (micBtn) micBtn.classList.toggle("listening", active);
+  if (statusEl) {
+    statusEl.textContent = active ? "🔴 ÉCOUTE EN COURS…" : "EN PAUSE";
+    statusEl.classList.toggle("active", active);
+  }
+  setWaveform(active);
+}
+
+function setWaveform(active) {
+  var wf = document.getElementById("waveform");
+  if (wf) wf.classList.toggle("idle", !active);
+}
+
+function updateTranscript(final, interim) {
+  var el = document.getElementById("voice-transcript");
+  if (!el) return;
+  var html = "";
+  if (final) html += '<span class="final">' + esc2(final) + '</span>';
+  if (interim) html += '<span class="interim">' + esc2(interim) + '</span>';
+  if (!final && !interim) html = '<span class="interim">Parle maintenant…</span>';
+  el.innerHTML = html;
+}
+
+function clearVoice() {
+  finalTranscript = "";
+  updateTranscript("", "Parle maintenant…");
+  var sendBtn = document.getElementById("v-send-btn");
+  if (sendBtn) sendBtn.disabled = true;
+}
+
+function sendVoice() {
+  if (!finalTranscript.trim()) return;
+  var brief = finalTranscript.trim();
+  document.getElementById("brief-inp").value = brief;
+  stopVoice();
+  setTimeout(function() { dispatch(); }, 300);
+}
+
+function esc2(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// Init
+renderGrid();
+startClock();
+</script>
+</body>
+</html>
